@@ -1,15 +1,22 @@
-import React, { useState,useEffect ,memo} from 'react';
+import React, { useState,useEffect ,memo, useCallback} from 'react';
 import { Button } from 'primereact/button';
 import { TreeNode } from 'primereact/treenode';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useNavigate } from 'react-router-dom';
+import "./Table.css";
+import {useRef} from 'react';
+
 // name: string;  Bud
 interface TreeNodeS extends TreeNode{
   name: string;
   id: string;
   title: string;
   postId: string;
+}
+
+interface ErrorHandl{
+  message:string
 }
 
 const init:TreeNodeS[] = [
@@ -26,69 +33,120 @@ interface TableAllProps {
   question: string;
 }
 
-
 const TableAll = memo(function TableAll({ question }:TableAllProps){
   const navigation = useNavigate();
+  let errorA  = useRef<Error | ErrorHandl | any>();
+  const [state, setState] = useState<TreeNodeS[] | any>(init);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer | boolean>(false);
+  let idprivat = useRef< NodeJS.Timeout>()
 
-  const [state, setState] = useState<TreeNodeS[]>(init);
-  const [error, setError] = useState<Error | undefined>();
+  const syncron = useCallback(async function (question:string ){
+                        try {
+                            const response = await fetch(API + question); // Replace with your API uRL
+                            if (!response.ok) {
+                              throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            const data = await response.json();
 
-    async function syncron(question:string ){
-      try {
-          const response = await fetch(API + question); // Replace with your API uRL
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
+                            setState(data);
+                        } 
+                        catch (error:Error | any) {
+                          errorA.current = error;
+                        }
+                   }, []);
+  
+  useEffect(()=>{
+    syncron(question);
+  },[question,syncron])
 
-          setState(data);
-      } 
-      catch (error:Error | any) {
-          setError(error);
-      }
-    }
-    useEffect(()=>{
-      syncron(question);
-    },[question])
-
-    let columData;
-    let arr;
-    if (Array.isArray(state))
+  useEffect(() => {
+    if (intervalId)
     {
-      columData = Object.keys(state[0])
-      arr = state;
+      idprivat.current = setInterval(() => {
+        console.log(question + "  ")
+        syncron(question);
+      }, 1000);
     }
     else
-    {
-      columData = Object.keys(state);
-      setState([state])
-      arr = [state]
-    }
+      clearInterval(idprivat.current)
 
-    console.log(columData)
-    return (
-      <div>
-        {error ? (
-          <p>Error fetching data: {error.message}</p>
-        ) : state ? (
-          <DataTable value={arr}>
-                {
-                  columData.map((value,key)=>{
-                    // console.log("value  ==" + JSON.stringify(value));
-                    return(<Column key={key} field={value} header={value} ></Column>)
-                  })
-                }
-          </DataTable>
-        ) : (
-          <p>Loading...</p>
-        )}
-        <div className='flex'>
-          <Button className=' ml-6' onClick={()=>{
-            navigation("/")
-          }}>Home</Button>
-        </div>
+    return () => clearInterval(idprivat.current);
+  }, [intervalId, question, syncron]); // Dependency on intervalRunning
+  
+  
+  const infinityStart = () => {
+    setIntervalId(true);
+  }
+  const infinityStope=() =>{
+    setIntervalId(false);
+  }
+
+  let columData;
+  let arr;
+  errorA.current = "";
+
+  if (Array.isArray(state) && !errorA.current)
+  {
+    columData = Object.keys(state[0])
+    arr = state;
+
+    let count = Object.keys(arr[0]).length;
+   
+
+    if (!arr ||  arr.length  < 1)
+    {
+      errorA.current = {message : "data not found"}
+    }
+    
+    if(!arr || count < 5 || count > 15)
+    {
+      errorA.current = {message:"A table that can contain an arbitrary number of fields (from 5 to 15)."};
+    }
+  }
+  else if (!errorA.current)
+  {
+    
+    columData = Object.keys(state);
+    debugger
+    setState([state])
+
+    arr = [state]
+  }
+
+  return (
+    <div>
+      {errorA.current ? (
+        <p id="errorTable">Error fetching data: {errorA.current.message}</p>
+
+       ): state ? (
+        <DataTable value={arr}>
+              {
+                columData?.map((value,key)=>{
+                  // console.log("value  ==" + JSON.stringify(value));
+                  return(<Column key={key} field={value} header={value} ></Column>)
+                })
+              }
+        </DataTable>
+      ) : (
+        <p>Loading...</p>
+      )}
+      <div className='flex'>
+        <Button className=' ml-6' 
+          name="tableGoHome"
+          onClick={()=>{
+          navigation("/")
+        }}>Home</Button>
       </div>
-    );
+      <div>
+          <Button className=' ml-6' id='infstart' onClick={ ()=>{
+            infinityStart();
+        }}>Infinity Syncron Start</Button>
+        <Button className=' ml-6' id='infstop' onClick={ ()=>{
+            infinityStope();
+        }}>Infinity Syncron Stop</Button>
+      </div>
+    </div>
+  );
 })
 
 export default TableAll;

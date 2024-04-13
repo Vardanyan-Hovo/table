@@ -18,8 +18,17 @@ const Navbar: React.FC = () => {
 
     return (
         <nav className='flex  ml-28  my-5 right-0'>
-                <Button type="button" label="Table" className="mb-3 md:mb-0 bg-sky-500/100 w-28 hover:bg-sky-50 mr-2" onClick={goToTable}></Button>
-                <Button type="button" label="Form" className="p-button-secondary mb-3 md:mb-0 bg-sky-500/75 w-28 hover:bg-sky-50" onClick={goToForm}></Button>
+                <Button
+                    type="button" label="Table" 
+                    name='homeToTable'
+                    className="mb-3 md:mb-0 bg-sky-500/100 w-28 hover:bg-sky-50 mr-2" 
+                    onClick={goToTable}>
+                </Button>
+                <Button type="button" label="Form" 
+                    name='homeToForm'
+                    className="p-button-secondary mb-3 md:mb-0 bg-sky-500/75 w-28 hover:bg-sky-50" 
+                    onClick={goToForm}>
+                </Button>
         </nav>
     );
 }

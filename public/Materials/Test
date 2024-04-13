@@ -1,0 +1,4 @@
+npm init -y
+npm install cypress --save-dev
+npm apt-get install xvfb
+npx cypress open

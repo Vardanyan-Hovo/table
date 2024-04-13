@@ -1,0 +1,19 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "docker image build -t test-app-image . && docker run -d -p 3001:3000 --name test-conteiner-name test-app-image"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^3.4.1"
+  },
+  "dependencies": {
+    "xvfb": "^0.4.0"
+  }
+}

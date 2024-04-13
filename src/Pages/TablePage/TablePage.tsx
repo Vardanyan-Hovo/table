@@ -28,6 +28,7 @@ const TablePage: React.FC = (props : Props) => {
     const [url, setUrl] = useState<string>("posts")
     
 
+  
     return (
         <div className='text-center'>
             <header className=' w-12 bg-black font-serif  h-20'>
