@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "docker image build -t test-app-image . && docker run -d -p 3001:3000 --name test-conteiner-name test-app-image"
+    "dev": "npx cypress open"
   },
   "keywords": [],
   "author": "",

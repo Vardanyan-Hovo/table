@@ -27,7 +27,7 @@
     "conteinerStop": "docker rm -f  person-conteiner-name",
     "rmImg": "docker rmi person-app-image",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "cd ./tests && npx cypress open",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
